@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 import warnings
 warnings.filterwarnings('ignore')
+#loading and preprocessing data
 ESR = pd.read_csv('Epileptic Seizure Recognition.csv (1).zip')
 ESR = ESR.drop(columns = ESR.columns[0]) 
 print(ESR.head())
@@ -19,14 +20,15 @@ print(Y)
 X = ESR.iloc[:,1:178].values
 print(X.shape)
 
+#spliting data for training and testing 
 from sklearn.model_selection import train_test_split, cross_val_score
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2)
-
+#training and testing of data
 from sklearn.preprocessing import StandardScaler
 sc = StandardScaler()
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
-
+#training machine learning model on the training set 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
@@ -34,14 +36,15 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 clf = RandomForestClassifier(n_estimators=100, random_state=42)
 clf.fit(X_train, y_train)
 
-
+#prediction
 y_pred = clf.predict(X_test)
 
-
+#readability and effectiveness of prediction from the model
 print("Accuracy:", accuracy_score(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 print("Classification Report:\n", classification_report(y_test, y_pred))
 new_input1 = ESR.iloc[6, :177].values.reshape(1, -1)
+#function for prediction
 def predict_seizure(input_sample):
     sample_scaled = sc.transform(input_sample)
     prediction = clf.predict(sample_scaled)[0]
@@ -50,10 +53,10 @@ def predict_seizure(input_sample):
 scores = cross_val_score(clf, X, Y, cv=5)
 print("Cross-validation accuracy scores:", scores)
 print("Mean CV Accuracy:", scores.mean())
-
+#testing with manual input
 result = predict_seizure(new_input1)
 print("Prediction:", result)
-
+#cross-validation
 true_label = ESR.iloc[6, 178]  # Column 178 is the target (y)
 print("Actual Label:", "Seizure" if true_label == 1 else "Non-Seizure")
 
